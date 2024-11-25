@@ -33,25 +33,36 @@ int main(){
   char* path = getPathFromCode(filecode);
   printf("Path: %s\n",path);
   
+  // Read files from a specified folder.
   struct dirent** namelist;
   int amount = scandir(path, &namelist, filter, alphasort); 
+  // Function saved dirent** to the variable. Now I process it.
   if(amount != -1){
     for(int i = 0; i < amount; ++i){
+      // Print the current entry.
       printf("Entry %d: %s\n", i, namelist[i]->d_name);
 
-      if(namelist[i]->d_type == DT_REG){
-         char* titlepath;
-         FILE *fptr;
+      if(namelist[i]->d_type == DT_REG){ // If it is a file, try to read it.
+        // Path to the file must be assembled.
+        char* filepath = malloc(strlen(path)+strlen(namelist[i]->d_name)+1);
+        strcpy(filepath, path); //  Write the directory path to the file path.
+        strcat(filepath, namelist[i]->d_name); // Append the filename to the filepath.
+        filepath[strlen(path)+strlen(namelist[i]->d_name)] = '\0';
+        // Now the operations can begin.
+        
+        
+        FILE *fptr;
   
-        fptr = fopen(path, "r");
+        fptr = fopen(filepath, "r");
         fseek(fptr, 0L, SEEK_END);
         const int sz = ftell(fptr);
   
-        printf("File: %s; size: %d.\n", titlepath, sz);
+        printf("File: %s; size: %d.\n", filepath, sz);
 
         fclose(fptr);
+        
 
-        free(titlepath);
+        free(filepath);
       }
 
       free(namelist[i]);
@@ -61,5 +72,5 @@ int main(){
 
   free(path);
 
-  exit(EXIT_SUCCESS);
+  return 0;
 }
