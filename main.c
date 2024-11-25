@@ -37,23 +37,28 @@ int main(){
   int amount = scandir(path, &namelist, filter, alphasort); 
   if(amount != -1){
     for(int i = 0; i < amount; ++i){
-      printf("Entry %d: %s\t Length: %d\n", i, namelist[i]->d_name, namelist[i]->d_reclen);
+      printf("Entry %d: %s\n", i, namelist[i]->d_name);
+
+      if(namelist[i]->d_type == DT_REG){
+         char* titlepath;
+         FILE *fptr;
+  
+        fptr = fopen(path, "r");
+        fseek(fptr, 0L, SEEK_END);
+        const int sz = ftell(fptr);
+  
+        printf("File: %s; size: %d.\n", titlepath, sz);
+
+        fclose(fptr);
+
+        free(titlepath);
+      }
+
       free(namelist[i]);
     }
     free(namelist);
   }
 
-  //char* titlepath;
-  //FILE *fptr;
-  //fptr = fopen(path, "r");
-  //fseek(fptr, 0L, SEEK_END);
-  //const int sz = ftell(fptr);
-  
-  //printf("File: %s; size: %d.\n", titlepath, sz);
-
-  //fclose(fptr);
-
-  //free(titlepath);
   free(path);
 
   exit(EXIT_SUCCESS);
