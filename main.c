@@ -50,25 +50,32 @@ int main(){
         filepath[strlen(path)+strlen(namelist[i]->d_name)] = '\0';
         // Now the operations can begin.
         
-        
+       // Preparing the file. 
         FILE *fptr;
   
         fptr = fopen(filepath, "r");
         fseek(fptr, 0L, SEEK_END);
         const int sz = ftell(fptr);
-  
+        fseek(fptr, 0L, SEEK_SET);
+        //  File prepared; size calculated.
+
         printf("File: %s; size: %d.\n", filepath, sz);
 
-        fclose(fptr);
-        
+        char buffer[sz];
+        fgets(buffer, sz, fptr);
 
+        printf("\n\"%s\" contents:\n%s\n\n", filepath, buffer);
+
+        // Cleaning up after using the file.
+        fclose(fptr);
         free(filepath);
-      }
+      } //  "if the entry is a file" end.
 
       free(namelist[i]);
-    }
+    } // end of "for through the dirents".
+
     free(namelist);
-  }
+  }// end of "if amount of entries is not -1".
 
   free(path);
 
