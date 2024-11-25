@@ -1,14 +1,45 @@
+
+//  This is the first task for programming in my univesity.
+//  I wonder if my teacher is going to get me overwhelmed
+//  with difficult tasks from now on or just mentally hit
+//  me for writing something so frightening.
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 
-// ./ + 0/ + 1/ + ... + n/
+//  Defines are still better than magic.
+#define README_FILENAME "readme.md"
+
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
+
+
+
+
+
+//  Function to use in listing the directory contents with scandir.
 
 int filter (const struct dirent* name){
+  if(name->d_name[strlen(name->d_name)-1]==kPathSeparator){
+    //  Checking if it is a directory in an officially approved way.
+    return 0; //  ...and not listing it.
+  }
+  //  Otherwise, listing the file.
   return 1;
 }
 
+
+//  Function to change
+//  0+1+...+n
+//  into
+//  ./ + 0/ + 1/ + ... + n/
 char* getPathFromCode(const char* filecode){
   // Making the actual path string out of the digit code of the story node.
   const short pathlength = 2+strlen(filecode)*2; 
@@ -23,61 +54,70 @@ char* getPathFromCode(const char* filecode){
   
   char* pathptr = malloc(pathlength);
   strcpy(pathptr, path);
-  return pathptr;     //  Is it safe?
+  return pathptr;     //  Is it safe? Aye.
 }
 
 
+//  Prints files with time delays between characters.
+int printFileSlowly(const char* path){
+  
+  FILE* fileptr = fopen(path, "r");
+  
+  if(fileptr == NULL){  //  It may not be openable or existent.
+    fprintf(stderr, "File on local path \"%s\" could not be opened.", path);
+    return EXIT_FAILURE;
+  }
+
+  //  Do print the file whole.
+  char ch;
+  while((ch = fgetc(fileptr)) != EOF){
+    //  Placeholder for a delay function.
+    printf("%c", ch);
+  }
+
+
+  return EXIT_SUCCESS;
+}
+
+
+
+
+
+
 int main(){
-  char* filecode = "03";
-  printf("Filecode: %s\n", filecode);
+  
+  //  Starting from a folder that has to exist. The name can be changed, 
+  //  but it is designed so that it consists of a single symbol. A 
+  //  path-building algorithm is relying on it, so more symbols in a 
+  //  directory name shall lead to unwanted behaviour.
+  char* filecode = "0";
   char* path = getPathFromCode(filecode);
-  printf("Path: %s\n",path);
+  //  "My path is set." - Tassadar.
+
+  struct dirent** namelist; //  This shall hold a list of the files in the directory and their data.
+
+  for(;;){  //  Main loop.
+
+    int amount = scandir(path, &namelist, filter, alphasort);
+    
+    if(amount>0){ //  Read contents of the current directory and work with them if they exist.
+
+      
+      free(namelist); //  Kill the pointer only if it was defined.
+    }
+
+
+    else{ //  If the files can not be read, quit.
+      if(strlen(filecode) == 1){  //  If it is the fisrt directory, print readme file.
+        printFileSlowly(README_FILENAME); //  If it does not exist, the error shall be shown. 
+      }
+      //  Do quit.
+      break;
+    }
   
-  // Read files from a specified folder.
-  struct dirent** namelist;
-  int amount = scandir(path, &namelist, filter, alphasort); 
-  // Function saved dirent** to the variable. Now I process it.
-  if(amount != -1){
-    for(int i = 0; i < amount; ++i){
-      // Print the current entry.
-      printf("Entry %d: %s\n", i, namelist[i]->d_name);
-
-      if(namelist[i]->d_type == DT_REG){ // If it is a file, try to read it.
-        // Path to the file must be assembled.
-        char* filepath = malloc(strlen(path)+strlen(namelist[i]->d_name)+1);
-        strcpy(filepath, path); //  Write the directory path to the file path.
-        strcat(filepath, namelist[i]->d_name); // Append the filename to the filepath.
-        filepath[strlen(path)+strlen(namelist[i]->d_name)] = '\0';
-        // Now the operations can begin.
-        
-       // Preparing the file. 
-        FILE *fptr;
+  }
   
-        fptr = fopen(filepath, "r");
-        fseek(fptr, 0L, SEEK_END);
-        const int sz = ftell(fptr);
-        fseek(fptr, 0L, SEEK_SET);
-        //  File prepared; size calculated.
-
-        printf("File: %s; size: %d.\n", filepath, sz);
-
-        char buffer[sz];
-        fgets(buffer, sz, fptr);
-
-        printf("\n\"%s\" contents:\n%s\n\n", filepath, buffer);
-
-        // Cleaning up after using the file.
-        fclose(fptr);
-        free(filepath);
-      } //  "if the entry is a file" end.
-
-      free(namelist[i]);
-    } // end of "for through the dirents".
-
-    free(namelist);
-  }// end of "if amount of entries is not -1".
-
+  //  Ending it all.
   free(path);
-
-  return 0;
+  exit(EXIT_SUCCESS);
 }
