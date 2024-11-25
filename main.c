@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 // ./ + 0/ + 1/ + ... + n/
+
+int filter (const struct dirent* name){
+  return 1;
+}
 
 char* getPathFromCode(const char* filecode){
   // Making the actual path string out of the digit code of the story node.
@@ -23,10 +28,33 @@ char* getPathFromCode(const char* filecode){
 
 
 int main(){
-  char* filecode = "01";
+  char* filecode = "03";
   printf("Filecode: %s\n", filecode);
   char* path = getPathFromCode(filecode);
   printf("Path: %s\n",path);
+  
+  struct dirent** namelist;
+  int amount = scandir(path, &namelist, filter, alphasort); 
+  if(amount != -1){
+    for(int i = 0; i < amount; ++i){
+      printf("Entry %d: %s\t Length: %d\n", i, namelist[i]->d_name, namelist[i]->d_reclen);
+      free(namelist[i]);
+    }
+    free(namelist);
+  }
+
+  //char* titlepath;
+  //FILE *fptr;
+  //fptr = fopen(path, "r");
+  //fseek(fptr, 0L, SEEK_END);
+  //const int sz = ftell(fptr);
+  
+  //printf("File: %s; size: %d.\n", titlepath, sz);
+
+  //fclose(fptr);
+
+  //free(titlepath);
   free(path);
-  return 0;
+
+  exit(EXIT_SUCCESS);
 }
