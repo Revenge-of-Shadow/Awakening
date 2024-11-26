@@ -11,7 +11,11 @@
 #include <dirent.h>
 
 //  Defines are still better than magic.
-#define README_FILENAME "readme.md"
+#define START_DIRNAME     "0"
+#define FILENAME_README   "readme.md"
+#define FILENAME_TITLE    "title.txt"
+#define FILENAME_TEXT     "title.txt"
+#define FILENAME_OPTIONS  "title.txt"
 
 const char kPathSeparator =
 #ifdef _WIN32
@@ -22,6 +26,20 @@ const char kPathSeparator =
 
 
 
+
+
+//  Function to concatenate strings.
+//  Warning: returns pointer. Caution is advised.
+char* concat(const char* first, const char* second){
+  
+  char* result = malloc(strlen(first)+strlen(second)+1);  //  Lengths of both and a terminating null.
+  
+  strcpy(result, first);
+  strcat(result, second);
+  result[strlen(first)+strlen(second)] = '\0';
+
+  return result;
+}
 
 
 //  Function to use in listing the directory contents with scandir.
@@ -90,7 +108,7 @@ int main(){
   //  but it is designed so that it consists of a single symbol. A 
   //  path-building algorithm is relying on it, so more symbols in a 
   //  directory name shall lead to unwanted behaviour.
-  char* filecode = "0";
+  char* filecode = START_DIRNAME;
   char* path = getPathFromCode(filecode);
   //  "My path is set." - Tassadar.
 
@@ -102,14 +120,46 @@ int main(){
     
     if(amount>0){ //  Read contents of the current directory and work with them if they exist.
 
-      
+      for(int i = 0; i < amount; ++i){
+        //  Iterating through the files.
+
+        char* filepath = concat(path, namelist[i]->d_name); //  Create file path.
+        
+        printf("File: %s\n", filepath);
+
+        // Regardless of the actaully existing files,
+        // each iteration has to check for a set of 
+        // files that can create a story node. As
+        // such, title is implicitely obligatory, but
+        // options are only needed for nodes that
+        // redirect anywhere and not for endings.
+        //
+        // More explained in readme.
+        if(strcmp(namelist[i]->d_name, FILENAME_TITLE) ||  //  Start with "title" file.
+           strcmp(namelist[i]->d_name, FILENAME_TEXT))     //  Text is treated the same way.
+        {
+          printFileSlowly(filepath);
+          printf("\n\n");
+        }
+
+        else if(strcmp(namelist[i]->d_name, FILENAME_OPTIONS)){  //  This is where the fun begins.
+          //  Print it properly and then let the user choose.
+        }
+
+        //  None other files than these three are of interest.
+
+
+        free(filepath);     //  Each iteration it is allocated and destroyed.
+        free(namelist[i]);  //  Destroy each separate pointer.
+      }
+
       free(namelist); //  Kill the pointer only if it was defined.
     }
 
 
     else{ //  If the files can not be read, quit.
-      if(strlen(filecode) == 1){  //  If it is the fisrt directory, print readme file.
-        printFileSlowly(README_FILENAME); //  If it does not exist, the error shall be shown. 
+      if(strlen(filecode) == 1){  //  If it is the first directory, print readme file.
+        printFileSlowly(FILENAME_README); //  If it does not exist, the error shall be shown. 
       }
       //  Do quit.
       break;
