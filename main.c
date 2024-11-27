@@ -46,7 +46,7 @@ char* concat(const char* first, const char* second){
 //  Pseudobool function to check for a file.
 int fileExistsAndCanBeOpened(const char* path){
   FILE* fptr = fopen(path, "r");
-  int result = fptr == NULL;
+  int result = !(fptr == NULL);
   
   if(result)  fclose(fptr);
 
@@ -161,6 +161,7 @@ int main(){
     //  This is where the fun begins.
     filepath = concat(dirpath, FILENAME_OPTIONS); //  Create file path.
     if(fileExistsAndCanBeOpened(filepath))  {
+              
           //  Print it properly and then let the user choose.
           
       const int filesize = getFileSize(filepath); //  Allows to store a lot of things in a char[] by getting the file size whole.
@@ -174,9 +175,8 @@ int main(){
 
         while(fgets(line, filesize, optionsFilePtr) != NULL){
           //  Got the options line; print the readable part if it exists.
-              
           ++iteration;  //  Safety measures, really.
-              
+
           for(int j = 0; j < strlen(line); ++j){
                 
             if(line[j] == OPTIONS_SEPARATOR){ //  First occurence of : is located.
