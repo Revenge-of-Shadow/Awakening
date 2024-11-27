@@ -141,7 +141,7 @@ int main(){
         // Regardless of the actaully existing files,
         // each iteration has to check for a set of 
         // files that can create a story node. As
-        // such, title is implicitely obligatory, but
+        // such, title is implicitly obligatory, but
         // options are only needed for nodes that
         // redirect anywhere and not for endings.
         //
@@ -153,8 +153,22 @@ int main(){
           printf("\n\n");
         }
 
-        else if(strcmp(namelist[i]->d_name, FILENAME_OPTIONS)){  //  This is where the fun begins.
+        else if(strcmp(namelist[i]->d_name, FILENAME_OPTIONS) == 0){  //  This is where the fun begins.
           //  Print it properly and then let the user choose.
+          
+          const int filesize = getFileSize(filepath);
+          char line [filesize];
+
+          FILE* fileptr = fopen(filepath, "r");
+
+          if(fileptr != NULL){
+            while(fgets(line, filesize, fileptr) != NULL){
+              printf("%s", line);
+            }
+            
+          }
+
+          fclose(fileptr);
         }
 
         //  None other files than these three are of interest.
