@@ -14,8 +14,8 @@
 #define START_DIRNAME     "0"
 #define FILENAME_README   "readme.md"
 #define FILENAME_TITLE    "title.txt"
-#define FILENAME_TEXT     "title.txt"
-#define FILENAME_OPTIONS  "title.txt"
+#define FILENAME_TEXT     "text.txt"
+#define FILENAME_OPTIONS  "options.txt"
 
 const char kPathSeparator =
 #ifdef _WIN32
@@ -51,6 +51,16 @@ int filter (const struct dirent* name){
   }
   //  Otherwise, listing the file.
   return 1;
+}
+
+
+//  Function that runs through the file and counts the symbols.
+int getFileSize(const char* path){
+  FILE* fileptr = fopen(path, "r");
+  fseek(fileptr, 0L, SEEK_END);
+  int size = ftell(fileptr);
+  fclose(fileptr);
+  return size;
 }
 
 
@@ -93,6 +103,7 @@ int printFileSlowly(const char* path){
     printf("%c", ch);
   }
 
+  fclose(fileptr);
 
   return EXIT_SUCCESS;
 }
@@ -135,8 +146,8 @@ int main(){
         // redirect anywhere and not for endings.
         //
         // More explained in readme.
-        if(strcmp(namelist[i]->d_name, FILENAME_TITLE) ||  //  Start with "title" file.
-           strcmp(namelist[i]->d_name, FILENAME_TEXT))     //  Text is treated the same way.
+        if((strcmp(namelist[i]->d_name, FILENAME_TITLE) == 0) ||  //  Start with "title" file.
+           (strcmp(namelist[i]->d_name, FILENAME_TEXT) == 0))     //  Text is treated the same way.
         {
           printFileSlowly(filepath);
           printf("\n\n");
