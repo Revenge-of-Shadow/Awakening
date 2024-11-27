@@ -16,6 +16,7 @@
 #define FILENAME_TITLE    "title.txt"
 #define FILENAME_TEXT     "text.txt"
 #define FILENAME_OPTIONS  "options.txt"
+#define OPTIONS_SEPARATOR ':'
 
 const char kPathSeparator =
 #ifdef _WIN32
@@ -42,21 +43,24 @@ char* concat(const char* first, const char* second){
 }
 
 
-//  Function to use in listing the directory contents with scandir.
+//  Pseudobool function to check for a file.
+int fileExistsAndCanBeOpened(const char* path){
+  FILE* fptr = fopen(path, "r");
+  int result = fptr == NULL;
+  
+  if(result)  fclose(fptr);
 
-int filter (const struct dirent* name){
-  if(name->d_name[strlen(name->d_name)-1]==kPathSeparator){
-    //  Checking if it is a directory in an officially approved way.
-    return 0; //  ...and not listing it.
-  }
-  //  Otherwise, listing the file.
-  return 1;
+  return result;
 }
 
 
 //  Function that runs through the file and counts the symbols.
 int getFileSize(const char* path){
   FILE* fileptr = fopen(path, "r");
+  if(fileptr == NULL){
+    return 0; //  Technically, it contains zero bytes if it does not exist.
+  }
+
   fseek(fileptr, 0L, SEEK_END);
   int size = ftell(fileptr);
   fclose(fileptr);
@@ -92,7 +96,6 @@ int printFileSlowly(const char* path){
   FILE* fileptr = fopen(path, "r");
   
   if(fileptr == NULL){  //  It may not be openable or existent.
-    fprintf(stderr, "File on local path \"%s\" could not be opened.", path);
     return EXIT_FAILURE;
   }
 
@@ -109,6 +112,10 @@ int printFileSlowly(const char* path){
 }
 
 
+// Optional function.
+void printFileErr(const char* path){
+    fprintf(stderr, "File on local path \"%s\" could not be opened.", path);
+}
 
 
 
@@ -120,23 +127,14 @@ int main(){
   //  path-building algorithm is relying on it, so more symbols in a 
   //  directory name shall lead to unwanted behaviour.
   char* filecode = START_DIRNAME;
-  char* path = getPathFromCode(filecode);
   //  "My path is set." - Tassadar.
-
-  struct dirent** namelist; //  This shall hold a list of the files in the directory and their data.
 
   for(;;){  //  Main loop.
 
-    int amount = scandir(path, &namelist, filter, alphasort);
-    
-    if(amount>0){ //  Read contents of the current directory and work with them if they exist.
+    char* dirpath = getPathFromCode(filecode);
+    char* filepath;
 
-      for(int i = 0; i < amount; ++i){
         //  Iterating through the files.
-
-        char* filepath = concat(path, namelist[i]->d_name); //  Create file path.
-        
-        printf("File: %s\n", filepath);
 
         // Regardless of the actaully existing files,
         // each iteration has to check for a set of 
@@ -146,53 +144,131 @@ int main(){
         // redirect anywhere and not for endings.
         //
         // More explained in readme.
-        if((strcmp(namelist[i]->d_name, FILENAME_TITLE) == 0) ||  //  Start with "title" file.
-           (strcmp(namelist[i]->d_name, FILENAME_TEXT) == 0))     //  Text is treated the same way.
-        {
-          printFileSlowly(filepath);
-          printf("\n\n");
-        }
+     
+    //  First, title.
+    filepath = concat(dirpath, FILENAME_TITLE); //  Create file path.
+    printFileSlowly(filepath);
+    printf("\n\n");
+    free(filepath);
 
-        else if(strcmp(namelist[i]->d_name, FILENAME_OPTIONS) == 0){  //  This is where the fun begins.
+    //  Then, text.
+    filepath = concat(dirpath, FILENAME_TEXT); //  Create file path.
+    printFileSlowly(filepath);
+    printf("\n\n");
+    free(filepath);
+
+
+    //  This is where the fun begins.
+    filepath = concat(dirpath, FILENAME_OPTIONS); //  Create file path.
+    if(fileExistsAndCanBeOpened(filepath))  {
           //  Print it properly and then let the user choose.
           
-          const int filesize = getFileSize(filepath);
-          char line [filesize];
+      const int filesize = getFileSize(filepath); //  Allows to store a lot of things in a char[] by getting the file size whole.
+      char line [filesize];   //  Multifunctional variable to read lines.
 
-          FILE* fileptr = fopen(filepath, "r");
+      FILE* optionsFilePtr = fopen(filepath, "r");
 
-          if(fileptr != NULL){
-            while(fgets(line, filesize, fileptr) != NULL){
-              printf("%s", line);
+      if(optionsFilePtr != NULL){
+
+        int iteration = 0;  //  To mark the options.
+
+        while(fgets(line, filesize, optionsFilePtr) != NULL){
+          //  Got the options line; print the readable part if it exists.
+              
+          ++iteration;  //  Safety measures, really.
+              
+          for(int j = 0; j < strlen(line); ++j){
+                
+            if(line[j] == OPTIONS_SEPARATOR){ //  First occurence of : is located.
+              printf("%d. %s\n", iteration, line + j + 1);  //  Print the option number and then the option text.
+              break;  //  Line is divided and printed; go to the next one.
             }
-            
+
           }
 
-          fclose(fileptr);
+        } //  Options read end.
+
+        rewind(optionsFilePtr);  //  Unread it instead of closing because it shall be used again.
+
+
+        printf("\n\nType the option nubmer from the shown ones \nor type -1 to return to the previous choice\nor type 0 to quit\n then  press <Enter>.\nInput:");
+        int option;
+
+        do{
+          fgets(line, filesize, stdin);
         }
+        while(!sscanf(line, "%d", &option));
+            
+        //  If got 0, quit.
+        if(option == 0){
+          fclose(optionsFilePtr);
+          free(filepath);   //  Free the filepath created for options file.
+          free(dirpath);    //  Free the dirpath created at the beginning of the main loop.
+          break;  //  Get out of the main loop.
+        }
+        //  If read is -1, go back. If possible.
+        else if(option == -1 && strlen(filecode) > 1){
+            filecode[strlen(filecode)-1] = '\0'; //  Safe.
+        }
+        //  Option is positive. Look for the fitting option.
+        else if(option > 0){  
 
-        //  None other files than these three are of interest.
+          //  Choice in algorigthm is based on the line order. There is no way anyone is going to write INT_MAX options.
+          iteration = 0;
 
+          while(fgets(line, filesize, optionsFilePtr) != NULL){
+            if(++iteration == option){  //  The line corresponds the one that contains the needed option.
+                  
+              for(int j = 0; j < strlen(line); ++j){
+                if(line[j] == OPTIONS_SEPARATOR){
+                  memcpy(filecode, line, j);  //  What is before : is saved as the filecode for redirection.
+                  break;  //  Needed symbol is found; exit.
+                }
+              }
+              break;  //  Needed line is found; exit.
+            } 
+          } //  Option seeking is over.
+          
+        }   //  "Option input" if-else chain end.
+        
+        fclose(optionsFilePtr);  // File is not NULL, close it.
 
-        free(filepath);     //  Each iteration it is allocated and destroyed.
-        free(namelist[i]);  //  Destroy each separate pointer.
+      } //  "Options opened" 'if' end.
+    } //  "Options file exists and can be opened; and so we open it" end.
+    
+    else{     //  Options were not opened. Maybe something else was. Maybe not.
+      printf("\n\nType -1 to return to the previous choice\nor type 0 to quit\n then  press <Enter>.\nInput:");
+      int option;
+      const int linelength = 3; //  2 for -1 or 1 for 0 and... just in case there shall be a problem with \0, another 1.
+      char line[linelength];
+
+      do{
+        fgets(line, linelength, stdin);
       }
-
-      free(namelist); //  Kill the pointer only if it was defined.
-    }
-
-
-    else{ //  If the files can not be read, quit.
-      if(strlen(filecode) == 1){  //  If it is the first directory, print readme file.
-        printFileSlowly(FILENAME_README); //  If it does not exist, the error shall be shown. 
+      while(!sscanf(line, "%d", &option));
+            
+      //  If got 0, quit.
+      if(option == 0){
+        free(filepath);   //  Free the filepath created for options file.
+        free(dirpath);    //  Free the dirpath created at the beginning of the main loop.
+        break;  //  Get out of the main loop.
       }
-      //  Do quit.
-      break;
-    }
+      //  If read is -1, go back. If possible.
+      if(option == -1 && strlen(filecode) > 1){
+        filecode[strlen(filecode)-1] = '\0'; //  Safe.
+      }
+    }   //  Files if-else chain end.
+    
+    free(filepath);   //  Free the filepath created for options file.     
+    
+
+    //  None other files than these three are of interest.
+   
+    free(dirpath);
   
-  }
+      
+    }   //  Main loop end.
   
   //  Ending it all.
-  free(path);
   exit(EXIT_SUCCESS);
 }
