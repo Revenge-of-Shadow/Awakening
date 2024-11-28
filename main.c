@@ -18,11 +18,18 @@
 #define FILENAME_OPTIONS  "options.txt"
 #define OPTIONS_SEPARATOR ':'
 
-const char kPathSeparator =
 #ifdef _WIN32
-                            '\\';
+
+const char kPathSeparator = '\\';
+
+#include <conio.h>
+
 #else
-                            '/';
+
+const char kPathSeparator = '/';
+
+#define clrscr() system("clear");
+
 #endif
 
 
@@ -100,6 +107,7 @@ int printFileSlowly(const char* path){
     return EXIT_FAILURE;
   }
 
+  printf("\n");   //  Cosmetic paragraph.
   //  Do print the file whole.
   char ch;
   while((ch = fgetc(fileptr)) != EOF){
@@ -108,6 +116,8 @@ int printFileSlowly(const char* path){
   }
 
   fclose(fileptr);
+
+  printf("\n");   //  Cosmetic paragraph.
 
   return EXIT_SUCCESS;
 }
@@ -133,9 +143,10 @@ int main(){
 
   for(;;){  //  Main loop.
 
+    clrscr();
+
     char* dirpath = getPathFromCode(filecode);
     char* filepath;
-    printf("\nFilecode: %s\nDirpath: %s\n", filecode, dirpath);
 
         //  Iterating through the files.
 
@@ -151,13 +162,11 @@ int main(){
     //  First, title.
     filepath = concat(dirpath, FILENAME_TITLE); //  Create file path.
     printFileSlowly(filepath);
-    printf("\n\n");
     free(filepath);
 
     //  Then, text.
     filepath = concat(dirpath, FILENAME_TEXT); //  Create file path.
     printFileSlowly(filepath);
-    printf("\n\n");
     free(filepath);
 
 
@@ -194,7 +203,7 @@ int main(){
         rewind(optionsFilePtr);  //  Unread it instead of closing because it shall be used again.
 
 
-        printf("\n\nType the option nubmer from the shown ones \nor type -1 to return to the previous choice\nor type 0 to quit\n then  press <Enter>.\nInput:");
+        printf("\n\nType the option nubmer from the shown ones \nor type -1 to return to the previous choice\nor type 0 to quit\n then  press <Enter>.\nInput:\n");
         int option;
 
         do{
