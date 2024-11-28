@@ -1,0 +1,3 @@
+0111221:inspect the refrigerator.
+0111222:start with breakfast.
+0111223:limit myself to a biscuit and go to sleep.

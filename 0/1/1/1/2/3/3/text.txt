@@ -1,0 +1,5 @@
+The issue at hand was just annoying. The memory leak was serious and very confusing. Given that this was an avant-garde project of sorts - a retro minimalistic videogame to fit on a floppi drive - the search for help was as complicated as work alone. I searched the source of the errors for a while.
+In the end, I rewrote the third-party library that screwed up the processing. It took way too much effort, but now I can write the actual program.
+But now - sleep.
+
+Ending 4: Closest friend

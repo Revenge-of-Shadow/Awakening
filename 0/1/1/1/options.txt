@@ -1,0 +1,3 @@
+01111:try to sleep anyway.
+01112:feed the cat.
+01113:talk to her.
