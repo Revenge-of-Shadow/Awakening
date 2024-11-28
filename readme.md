@@ -8,14 +8,31 @@
 1. General information
 2. Formatting, files and code notes
 3. Diagram
-
+4. Copyleft
 
 ### 1. General information
 
+1.1. Kurzgesagt
 An open-source game. Virtually any story consisting of text and choices can be assembled from this.
 
 I wrote most of the story on the typewriter in the evening inspiration impulses.
 
+1.2. How to run?
+
+The code has to be compiled. I can provide two examples of how to do that.
+
+1.2.2. Visual Studio
+
+Open the main.c in Visual Studio and Run it. After that, the .exe that was created in the project folders can be used. I suppose. If it can find its way. Because the program must be in the directory that contains the story directories and the default story directory.
+
+1.2.3. gcc
+
+In the directory containing main.c, run in the terminal the following command:
+gcc -o main main.c
+Then, run the following:
+./main
+The file main shall be executable.
+Just as it was explained in the Visual Studio version, it has to be in the directory containing the story directory tree.
 
 ### 2. Formatting, files and code notes
 
@@ -111,3 +128,17 @@ Yeah, no... not yet. Those features are not supported.
 ### 3. Diagram
 
 A UML diagram that describes the algorithm. Can be opened with UMLet on Linux machines.
+
+
+### 4. Copyleft
+
+The program can be copied and modified. 
+Author should be mentioned in any readable form. (No, really. Using the ciphers is fine.)
+Commercial usage is prohibited.
+
+
+##Created by Viacheslav Pihida, Revenge-of-Shadow on GitHub; 28.11.2024
+
+
+
+hehehehe sleep is overrated
