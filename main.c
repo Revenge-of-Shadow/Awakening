@@ -126,13 +126,15 @@ int main(){
   //  but it is designed so that it consists of a single symbol. A 
   //  path-building algorithm is relying on it, so more symbols in a 
   //  directory name shall lead to unwanted behaviour.
-  char* filecode = START_DIRNAME;
+  char* filecode = malloc(strlen(START_DIRNAME)); //  I do know it is 1.
+  memcpy(filecode, START_DIRNAME, strlen(START_DIRNAME));
   //  "My path is set." - Tassadar.
 
   for(;;){  //  Main loop.
 
     char* dirpath = getPathFromCode(filecode);
     char* filepath;
+    printf("\nFilecode: %s\n", filecode);
 
         //  Iterating through the files.
 
@@ -199,6 +201,7 @@ int main(){
         }
         while(!sscanf(line, "%d", &option));
             
+
         //  If got 0, quit.
         if(option == 0){
           fclose(optionsFilePtr);
@@ -217,11 +220,15 @@ int main(){
           iteration = 0;
 
           while(fgets(line, filesize, optionsFilePtr) != NULL){
+
             if(++iteration == option){  //  The line corresponds the one that contains the needed option.
-                  
               for(int j = 0; j < strlen(line); ++j){
                 if(line[j] == OPTIONS_SEPARATOR){
+                  free(filecode);
+                  filecode = malloc(j+1);
                   memcpy(filecode, line, j);  //  What is before : is saved as the filecode for redirection.
+                  filecode[j] = '\0';
+
                   break;  //  Needed symbol is found; exit.
                 }
               }
@@ -270,5 +277,6 @@ int main(){
     }   //  Main loop end.
   
   //  Ending it all.
+  free(filecode);
   exit(EXIT_SUCCESS);
 }
