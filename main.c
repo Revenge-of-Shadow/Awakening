@@ -17,6 +17,7 @@
 #define FILENAME_TEXT     "text.txt"
 #define FILENAME_OPTIONS  "options.txt"
 #define OPTIONS_SEPARATOR ':'
+#define TYPING_PAUSE      50            //  Milliseconds to wait between characters typed.
 
 #ifdef _WIN32
 
@@ -24,11 +25,24 @@ const char kPathSeparator = '\\';
 
 #include <conio.h>
 
+#include <windows.h>
+void sleepfor(int milliseconds){
+  if(milliseconds < 0) return;
+  Sleep(milliseconds);
+}
+
 #else
 
 const char kPathSeparator = '/';
 
 #define clrscr() system("clear");
+
+#include <unistd.h>
+#include <time.h>
+void sleepfor(int milliseconds){
+  if(milliseconds < 0) return;
+  usleep(milliseconds * 1000);
+}
 
 #endif
 
@@ -110,22 +124,19 @@ int printFileSlowly(const char* path){
   printf("\n");   //  Cosmetic paragraph.
   //  Do print the file whole.
   char ch;
+
   while((ch = fgetc(fileptr)) != EOF){
-    //  Placeholder for a delay function.
-    printf("%c", ch);
+    sleepfor(TYPING_PAUSE);
+    putchar(ch);
+    fflush(stdout);
   }
 
   fclose(fileptr);
 
+
   printf("\n");   //  Cosmetic paragraph.
 
   return EXIT_SUCCESS;
-}
-
-
-// Optional function.
-void printFileErr(const char* path){
-    fprintf(stderr, "File on local path \"%s\" could not be opened.", path);
 }
 
 
