@@ -74,7 +74,7 @@ int getFileSize(const char* path){
 //  ./ + 0/ + 1/ + ... + n/
 char* getPathFromCode(const char* filecode){
   // Making the actual path string out of the digit code of the story node.
-  const short pathlength = 2+strlen(filecode)*2; 
+  const short pathlength = 3+strlen(filecode)*2; 
   
   char path [pathlength];   //  "./", then "n/", then terminator.
   path[0] = '.';
@@ -83,6 +83,7 @@ char* getPathFromCode(const char* filecode){
     path[2+i*2] = filecode[i];
     path[2+i*2+1] = '/';
   }
+  path[pathlength-1] = '\0';
   
   char* pathptr = malloc(pathlength);
   strcpy(pathptr, path);
@@ -134,7 +135,7 @@ int main(){
 
     char* dirpath = getPathFromCode(filecode);
     char* filepath;
-    printf("\nFilecode: %s\n", filecode);
+    printf("\nFilecode: %s\nDirpath: %s\n", filecode, dirpath);
 
         //  Iterating through the files.
 
