@@ -17,7 +17,7 @@
 #define FILENAME_TEXT     "text.txt"
 #define FILENAME_OPTIONS  "options.txt"
 #define OPTIONS_SEPARATOR ':'
-#define TYPING_PAUSE      50            //  Milliseconds to wait between characters typed.
+#define TYPING_PAUSE      20            //  Milliseconds to wait between characters typed.
 
 #ifdef _WIN32
 
@@ -126,7 +126,18 @@ int printFileSlowly(const char* path){
   char ch;
 
   while((ch = fgetc(fileptr)) != EOF){
-    sleepfor(TYPING_PAUSE);
+    switch(ch){
+      case '\n':
+        sleepfor(TYPING_PAUSE*4);
+        break;
+      case ' ':
+        sleepfor(TYPING_PAUSE*2);
+        break;
+      default:
+        sleepfor(TYPING_PAUSE);
+        break;
+    }
+
     putchar(ch);
     fflush(stdout);
   }
@@ -214,7 +225,7 @@ int main(){
         rewind(optionsFilePtr);  //  Unread it instead of closing because it shall be used again.
 
 
-        printf("\n\nType the option nubmer from the shown ones \nor type -1 to return to the previous choice\nor type 0 to quit\n then  press <Enter>.\nInput:\n");
+        printf("\n\nType the option nubmer from the shown ones \n or type -1 to return to the previous choice\n or type 0 to quit\n then  press <Enter>.\nInput:\n");
         int option;
 
         do{
@@ -287,6 +298,8 @@ int main(){
       }
     }   //  Files if-else chain end.
     
+    fflush(stdin);  
+
     free(filepath);   //  Free the filepath created for options file.     
     
 
