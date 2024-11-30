@@ -141,5 +141,6 @@ Commercial usage is **prohibited** _like alcohol in the twenties_.
 ## Created by Viacheslav Pihida, Revenge-of-Shadow on GitHub; 28.11.2024
 
 
-
 hehehehe sleep is deprecated
+
+Post scriptum: Thank you, Paviel, for a little hint for the story end.
