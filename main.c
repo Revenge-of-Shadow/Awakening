@@ -26,6 +26,8 @@ const char kPathSeparator = '\\';
 #include <conio.h>
 
 #include <windows.h>
+#define clrscr() system("cls");
+
 void sleepfor(int milliseconds){
   if(milliseconds < 0) return;
   Sleep(milliseconds);
