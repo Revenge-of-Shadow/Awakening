@@ -161,8 +161,9 @@ int main(){
   //  but it is designed so that it consists of a single symbol. A 
   //  path-building algorithm is relying on it, so more symbols in a 
   //  directory name shall lead to unwanted behaviour.
-  char* filecode = malloc(strlen(START_DIRNAME)); //  I do know it is 1.
+  char* filecode = malloc(strlen(START_DIRNAME)+1); //  I do know it is 1.
   memcpy(filecode, START_DIRNAME, strlen(START_DIRNAME));
+  filecode[strlen(START_DIRNAME)] = '\0';
   //  "My path is set." - Tassadar.
 
   for(;;){  //  Main loop.
