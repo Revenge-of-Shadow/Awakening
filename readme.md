@@ -119,7 +119,7 @@ If the program is on the **node** 022 and path 54 is chosen, the program changes
 
 ### 2.5. Story node
 
-The term for a bit of story. It must be understood as an object containing all or any of the text files and having a **filecode** that represents a path. Thought it is not an object.
+The term for a bit of story. It must be understood as an object containing all or any of the text files and having a **filecode** that represents a path. Though it is not an object.
 
 ### 2.5. External path? Non-one-letter foldernames?
 
